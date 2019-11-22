@@ -12,7 +12,8 @@ class MelSpectrogram(Modality):
     def __init__(self,
                  window_width: float,
                  window_step: float,
-                 mel_filters_count: int):
+                 mel_filters_count: int,
+                 to_db: bool):
         """
         :param window_width: Width of the sliding window in seconds.
         :param window_step: Step between the sliding windows in seconds.
@@ -22,13 +23,15 @@ class MelSpectrogram(Modality):
         self.window_width = window_width
         self.window_step = window_step
         self.mel_filters_count = mel_filters_count
+        self.to_db = to_db
 
     def get_config(self) -> Dict[str, Any]:
         base_config = super(MelSpectrogram, self).get_config()
         config = {
             "window_width": self.window_width,
             "window_step": self.window_step,
-            "mel_filters_count": self.mel_filters_count
+            "mel_filters_count": self.mel_filters_count,
+            "to_db": self.to_db,
         }
         return {**base_config, **config}
 
@@ -70,7 +73,7 @@ class MelSpectrogram(Modality):
                                        nfft=window_width,
                                        hop_length=window_step,
                                        mel_filters_count=self.mel_filters_count,
-                                       to_db=False)
+                                       to_db=self.to_db)
 
 
 def wave_to_mel_spectrogram(frames: np.ndarray,
@@ -78,7 +81,7 @@ def wave_to_mel_spectrogram(frames: np.ndarray,
                             nfft: int,
                             hop_length: int,
                             mel_filters_count: int,
-                            to_db=False,
+                            to_db: bool,
                             ) -> np.ndarray:
     if 1 in frames.shape:
         frames = frames.squeeze()
