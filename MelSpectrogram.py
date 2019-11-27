@@ -75,6 +75,31 @@ class MelSpectrogram(Modality):
                                        mel_filters_count=self.mel_filters_count,
                                        to_db=self.to_db)
 
+    def mel_spectrograms_to_wave(self,
+                                 features: np.ndarray,
+                                 frame_rate: int,
+                                 iterations=100):
+        results = []
+        for sample in features:
+            results.append(self.mel_spectrogram_to_wave(sample, frame_rate, iterations))
+        results = np.stack(results, axis=0)
+        return results
+
+    def mel_spectrogram_to_wave(self,
+                                features: np.ndarray,
+                                frame_rate: int,
+                                iterations=100):
+        import matplotlib.pyplot as plt
+        window_width = int(self.window_width * frame_rate)
+        window_step = int(self.window_step * frame_rate)
+        return mel_spectrogram_to_wave(features=features,
+                                       frame_rate=frame_rate,
+                                       nfft=window_width,
+                                       hop_length=window_step,
+                                       mel_filters_count=self.mel_filters_count,
+                                       from_db=self.to_db,
+                                       iterations=iterations)
+
 
 def wave_to_mel_spectrogram(frames: np.ndarray,
                             frame_rate: int,
@@ -97,7 +122,7 @@ def wave_to_mel_spectrogram(frames: np.ndarray,
                                               hop_length=hop_length, n_fft=nfft)
 
     if to_db:
-        features = librosa.power_to_db(features, ref=np.max)
+        features = librosa.power_to_db(features, ref=1.0)
 
     features = np.transpose(features)
 
@@ -116,7 +141,7 @@ def mel_spectrogram_to_wave(features: np.ndarray,
     features = np.transpose(features)
 
     if from_db:
-        features = librosa.db_to_power(features)
+        features = librosa.db_to_power(features, ref=1.0)
 
     # region Revert Mel scale
     filters = librosa.filters.mel(sr=frame_rate, n_fft=nfft, n_mels=mel_filters_count)
@@ -127,7 +152,7 @@ def mel_spectrogram_to_wave(features: np.ndarray,
     # region Iterative inversion
     x = None
     phase = 2 * np.pi * np.random.random_sample(features.shape) - np.pi
-    for _ in tqdm(range(iterations)):
+    for _ in tqdm(range(iterations), desc="mel_spectrogram_to_wave"):
         s = features * np.exp(1j * phase)
         x = librosa.istft(s, hop_length)
         phase = np.angle(librosa.stft(x, nfft, hop_length=hop_length))
