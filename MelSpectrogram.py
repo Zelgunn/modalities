@@ -89,7 +89,6 @@ class MelSpectrogram(Modality):
                                 features: np.ndarray,
                                 frame_rate: int,
                                 iterations=100):
-        import matplotlib.pyplot as plt
         window_width = int(self.window_width * frame_rate)
         window_step = int(self.window_step * frame_rate)
         return mel_spectrogram_to_wave(features=features,
