@@ -5,7 +5,7 @@ from tqdm import tqdm
 from typing import Dict, Any, Union
 
 from modalities import Modality
-from misc_utils.misc_utils import int_floor
+from misc_utils.general import int_floor
 
 
 class MelSpectrogram(Modality):
