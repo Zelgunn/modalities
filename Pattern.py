@@ -9,8 +9,9 @@ class Pattern(object):
                  *elements: Union[Tuple, ModalityLoadInfo, str],
                  output_map: Callable = None):
         self.elements = elements
+        self._output_map = None
         self.output_map = output_map
-        self._output_count = len(elements) if not output_map else None
+
         self._modality_types: Optional[Tuple[Type[Modality]]] = None
         self._modality_ids: Optional[Tuple[str]] = None
         self._flattened: Optional[Tuple[ModalityLoadInfo]] = None
@@ -18,6 +19,15 @@ class Pattern(object):
         self._contains_labels: Optional[bool] = None
 
     # region Properties
+    @property
+    def output_map(self):
+        return self._output_map
+
+    @output_map.setter
+    def output_map(self, value):
+        self._output_map = value
+        self._output_count = len(self.elements) if not value else None
+
     @property
     def required_modality_types(self) -> Tuple[Type[Modality]]:
         return self.modality_types
