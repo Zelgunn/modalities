@@ -7,10 +7,13 @@ from modalities import Modality, ModalityLoadInfo
 class Pattern(object):
     def __init__(self,
                  *elements: Union[Tuple, ModalityLoadInfo, str],
-                 preprocessor: Callable = None):
+                 preprocessor: Callable = None,
+                 postprocessor: Callable = None
+                 ):
         self.elements = elements
         self._preprocessor = None
         self.preprocessor = preprocessor
+        self.postprocessor = postprocessor
 
         self._modality_types: Optional[Tuple[Type[Modality]]] = None
         self._modality_ids: Optional[Tuple[str]] = None
@@ -103,9 +106,7 @@ class Pattern(object):
               modalities: Dict[str, tf.Tensor]
               ) -> Union[List, Tuple, tf.Tensor]:
         modalities = self._apply_pattern(modalities, self.elements)
-
-        if self.preprocessor is not None:
-            modalities = self.preprocessor(*modalities)
+        modalities = self.preprocess(modalities)
 
         if not isinstance(modalities, tf.Tensor):
             if len(modalities) == 1:
@@ -117,6 +118,18 @@ class Pattern(object):
             else:
                 self._output_count = len(modalities)
 
+        return modalities
+
+    def preprocess(self, modalities: Union[List, Tuple]) -> Union[List, Tuple, tf.Tensor]:
+        if self.preprocessor is not None:
+            modalities = self.preprocessor(*modalities)
+        return modalities
+
+    def postprocess(self, modalities: Union[List, Tuple, tf.Tensor]) -> Union[List, Tuple, tf.Tensor]:
+        if self.preprocessor is not None:
+            if not isinstance(modalities, (tuple, list)):
+                modalities = [modalities]
+            modalities = self.postprocessor(*modalities)
         return modalities
 
     @staticmethod
