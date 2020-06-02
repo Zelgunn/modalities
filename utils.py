@@ -1,7 +1,6 @@
 import tensorflow as tf
 import numpy as np
 from moviepy.editor import VideoClip, AudioClip
-from moviepy.audio.AudioClip import AudioArrayClip
 
 
 def int64_list_feature(int64_list) -> tf.train.Feature:

@@ -7,10 +7,10 @@ from modalities import Modality, ModalityLoadInfo
 class Pattern(object):
     def __init__(self,
                  *elements: Union[Tuple, ModalityLoadInfo, str],
-                 output_map: Callable = None):
+                 preprocessor: Callable = None):
         self.elements = elements
-        self._output_map = None
-        self.output_map = output_map
+        self._preprocessor = None
+        self.preprocessor = preprocessor
 
         self._modality_types: Optional[Tuple[Type[Modality]]] = None
         self._modality_ids: Optional[Tuple[str]] = None
@@ -20,12 +20,12 @@ class Pattern(object):
 
     # region Properties
     @property
-    def output_map(self):
-        return self._output_map
+    def preprocessor(self):
+        return self._preprocessor
 
-    @output_map.setter
-    def output_map(self, value):
-        self._output_map = value
+    @preprocessor.setter
+    def preprocessor(self, value):
+        self._preprocessor = value
         self._output_count = len(self.elements) if not value else None
 
     @property
@@ -44,6 +44,10 @@ class Pattern(object):
             ids: List[str] = [modality_type.id() for modality_type in self.modality_types]
             self._modality_ids = tuple(ids)
         return self._modality_ids
+
+    @property
+    def labeled_ids(self) -> List[str]:
+        return list(self.modality_ids) + ["labels"]
 
     @property
     def flattened(self) -> Tuple[Union[ModalityLoadInfo, str], ...]:
@@ -90,16 +94,18 @@ class Pattern(object):
     # endregion
 
     def with_labels(self) -> Optional["Pattern"]:
-        return self.__class__(*self.elements, "labels", output_map=self.output_map)
+        return self.__class__(*self.elements, "labels", preprocessor=self.preprocessor)
 
     def with_added_depth(self) -> Optional["Pattern"]:
-        return self.__class__(self.elements, output_map=self.output_map)
+        return self.__class__(self.elements, preprocessor=self.preprocessor)
 
-    def apply(self, modalities: Dict[str, tf.Tensor]):
+    def apply(self,
+              modalities: Dict[str, tf.Tensor]
+              ) -> Union[List, Tuple, tf.Tensor]:
         modalities = self._apply_pattern(modalities, self.elements)
 
-        if self.output_map is not None:
-            modalities = self.output_map(*modalities)
+        if self.preprocessor is not None:
+            modalities = self.preprocessor(*modalities)
 
         if not isinstance(modalities, tf.Tensor):
             if len(modalities) == 1:
@@ -115,7 +121,8 @@ class Pattern(object):
 
     @staticmethod
     def _apply_pattern(modalities: Dict[str, tf.Tensor],
-                       pattern: Union[ModalityLoadInfo, str, Tuple, List]):
+                       pattern: Union[ModalityLoadInfo, str, Tuple, List]
+                       ) -> Union[List, Tuple, tf.Tensor]:
         if isinstance(pattern, ModalityLoadInfo):
             modality_id = pattern.modality.id()
             modality = modalities[modality_id]
