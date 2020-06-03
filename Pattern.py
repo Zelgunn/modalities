@@ -8,11 +8,13 @@ class Pattern(object):
     def __init__(self,
                  *elements: Union[Tuple, ModalityLoadInfo, str],
                  preprocessor: Callable = None,
+                 batch_processor: Callable = None,
                  postprocessor: Callable = None
                  ):
         self.elements = elements
         self._preprocessor = None
         self.preprocessor = preprocessor
+        self.batch_processor = batch_processor
         self.postprocessor = postprocessor
 
         self._modality_types: Optional[Tuple[Type[Modality]]] = None
@@ -97,10 +99,16 @@ class Pattern(object):
     # endregion
 
     def with_labels(self) -> Optional["Pattern"]:
-        return self.__class__(*self.elements, "labels", preprocessor=self.preprocessor)
+        return self.__class__(*self.elements, "labels",
+                              preprocessor=self.preprocessor,
+                              batch_processor=self.batch_processor,
+                              postprocessor=self.postprocessor)
 
     def with_added_depth(self) -> Optional["Pattern"]:
-        return self.__class__(self.elements, preprocessor=self.preprocessor)
+        return self.__class__(self.elements,
+                              preprocessor=self.preprocessor,
+                              batch_processor=self.batch_processor,
+                              postprocessor=self.postprocessor)
 
     def apply(self,
               modalities: Dict[str, tf.Tensor]
@@ -123,13 +131,6 @@ class Pattern(object):
     def preprocess(self, modalities: Union[List, Tuple]) -> Union[List, Tuple, tf.Tensor]:
         if self.preprocessor is not None:
             modalities = self.preprocessor(*modalities)
-        return modalities
-
-    def postprocess(self, modalities: Union[List, Tuple, tf.Tensor]) -> Union[List, Tuple, tf.Tensor]:
-        if self.preprocessor is not None:
-            if not isinstance(modalities, (tuple, list)):
-                modalities = [modalities]
-            modalities = self.postprocessor(*modalities)
         return modalities
 
     @staticmethod
