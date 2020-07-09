@@ -133,6 +133,16 @@ class Pattern(object):
             modalities = self.preprocessor(*modalities)
         return modalities
 
+    def process_batch(self, batch):
+        if self.batch_processor is not None:
+            batch = self.batch_processor(batch)
+        return batch
+
+    def postprocess(self, outputs):
+        if self.postprocessor is not None:
+            outputs = self.postprocessor(outputs)
+        return outputs
+
     @staticmethod
     def _apply_pattern(modalities: Dict[str, tf.Tensor],
                        pattern: Union[ModalityLoadInfo, str, Tuple, List]
