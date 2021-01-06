@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import dlib
 from typing import Tuple, Union, Dict
 
 from modalities import Modality, RawVideo
@@ -10,6 +9,7 @@ class Faces(Modality):
     def __init__(self):
         super(Faces, self).__init__()
 
+        import dlib
         self.dlib_face_detector = dlib.get_frontal_face_detector()
 
     @classmethod

@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import dlib
 import cv2
 from typing import Dict, Union, List, Any
 
@@ -11,6 +10,7 @@ class Landmarks(Modality):
     def __init__(self, dlib_shape_predictor_path: str):
         super(Landmarks, self).__init__()
 
+        import dlib
         self.dlib_shape_predictor_path = dlib_shape_predictor_path
 
         self.dlib_face_detector = dlib.get_frontal_face_detector()
