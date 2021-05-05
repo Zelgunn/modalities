@@ -1,9 +1,10 @@
 from typing import Dict, Type, List, Optional, Any, Tuple, Union
 
-from modalities import Modality, RawVideo, Faces, OpticalFlow, DoG, Landmarks, RawAudio, MelSpectrogram
+from modalities import Modality, RawVideo, Faces, OpticalFlow, DoG, Landmarks, RawAudio, MelSpectrogram, NetworkPacket
 from modalities import ModalityLoadInfo
 
-EXISTING_MODALITIES: List[Type[Modality]] = [RawVideo, Faces, OpticalFlow, DoG, Landmarks, RawAudio, MelSpectrogram]
+EXISTING_MODALITIES: List[Type[Modality]] = [RawVideo, Faces, OpticalFlow, DoG, Landmarks, RawAudio, MelSpectrogram,
+                                             NetworkPacket]
 MODALITY_ID_TO_CLASS: Dict[str, Type[Modality]] = {modality_type.id(): modality_type
                                                    for modality_type in EXISTING_MODALITIES}
 

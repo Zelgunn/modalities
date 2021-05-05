@@ -19,4 +19,7 @@ from modalities.RawAudio import RawAudio
 # noinspection PyUnresolvedReferences
 from modalities.MelSpectrogram import MelSpectrogram
 # noinspection PyUnresolvedReferences
+from modalities.NetworkPacket import NetworkPacket
+
+# noinspection PyUnresolvedReferences
 from modalities.ModalityCollection import ModalityCollection

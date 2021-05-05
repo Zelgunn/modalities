@@ -6,6 +6,13 @@ from typing import Union, Dict, Any, NamedTuple, Type
 from modalities import int64_list_feature, bytes_list_feature
 
 
+###
+# Adding a new Modality :
+#   1) Import in __init__.py - before ModalityCollection
+#   2) Import in ModalityCollection.py
+#   3) In ModalityCollection.py, add to the list named EXISTING_MODALITIES
+###
+
 class Modality(ABC):
     def __init__(self, **kwargs):
         pass

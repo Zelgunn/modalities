@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import cv2
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List, Optional
 
 from modalities import Modality
 
@@ -55,7 +55,7 @@ class DoG(Modality):
             else:
                 frame = np.mean(frame, axis=2)
 
-        frames = [None] * len(self.blurs)
+        frames: List[Optional[np.ndarray]] = [None] * len(self.blurs)
         for i in range(len(self.blurs)):
             frames[i] = cv2.GaussianBlur(frame, ksize=(5, 5), sigmaX=self.blurs[i])
             if frame_size is not None:
