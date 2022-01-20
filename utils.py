@@ -50,7 +50,7 @@ def write_video_with_audio(path: str,
     # audio_clip = AudioArrayClip(array=audio, fps=audio_fps)
     audio_clip = AudioClip(make_frame=make_audio_frame, duration=duration, fps=audio_fps)
 
-    logger = None if verbose is 0 else "bar"
+    logger = None if verbose == 0 else "bar"
 
     clip: VideoClip = video_clip.set_audio(audio_clip)
     clip.write_videofile(filename=path, fps=video_fps, audio_fps=audio_fps, codec="mpeg4", logger=logger)
